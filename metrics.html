@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>추석 휴무 통계 대시보드</title>
+  <style>
+    *{box-sizing:border-box;font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+    body{margin:0;background:#0b2f66;color:#f5f8ff;display:flex;justify-content:center;padding:32px}
+    .panel{width:100%;max-width:720px;background:#0e3a7a;border:1px solid #0a2c5b;border-radius:16px;padding:24px;box-shadow:0 12px 32px rgba(0,0,0,.25)}
+    h1{margin:0 0 16px;font-size:26px;font-weight:900;color:#fed73d}
+    h2{margin:24px 0 12px;font-size:20px;font-weight:800;color:#fed73d}
+    label{display:flex;flex-direction:column;gap:8px;font-weight:700;font-size:14px;color:#d7e2ff;margin-bottom:12px}
+    input[type="date"],input[type="text"]{padding:10px 12px;border-radius:12px;border:1px solid #204c95;background:#082a5e;color:#fff;font-size:15px}
+    button{cursor:pointer;padding:10px 16px;border-radius:12px;border:none;font-weight:800;font-size:14px;background:#fed73d;color:#13254d}
+    button:active{transform:translateY(1px)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:8px}
+    .card{background:#093169;border-radius:14px;padding:16px;text-align:center}
+    .card span.value{display:block;font-size:28px;font-weight:900;color:#fff;margin-bottom:6px}
+    .card span.label{font-size:13px;color:#a6bcff;text-transform:uppercase;letter-spacing:.06em}
+    .top-list{margin-top:16px}
+    .top-list h3{font-size:16px;margin:0 0 8px;color:#dcedff}
+    .top-list ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+    .top-list li{background:#082f61;border-radius:10px;padding:10px 14px;font-size:14px;color:#dbe7ff;display:flex;justify-content:space-between}
+    .status{margin-top:18px;font-size:13px;color:#a8c2ff;min-height:18px}
+    .error{color:#ffb3b3}
+    .section{border-top:1px solid rgba(255,255,255,.08);padding-top:12px;margin-top:18px}
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <h1>추석 휴무 통계</h1>
+    <form id="controls">
+      <label>
+        조회 날짜 (KST 기준)
+        <input type="date" id="dateInput" required />
+      </label>
+      <label>
+        API 주소 (선택)
+        <input type="text" id="apiInput" placeholder="예: https://calendar.example.com" />
+      </label>
+      <button type="submit">통계 불러오기</button>
+    </form>
+
+    <section class="section" id="dailySection" hidden>
+      <h2 id="dailyTitle">선택 날짜 통계</h2>
+      <div class="grid" id="dailyGrid">
+        <article class="card"><span class="value" id="dailyVisits">-</span><span class="label">방문 수</span></article>
+        <article class="card"><span class="value" id="dailyUnique">-</span><span class="label">고유 IP</span></article>
+        <article class="card"><span class="value" id="dailySessions">-</span><span class="label">세션 수</span></article>
+        <article class="card"><span class="value" id="dailyDownloads">-</span><span class="label">다운로드</span></article>
+        <article class="card"><span class="value" id="dailyDownloadIps">-</span><span class="label">다운로드 IP</span></article>
+        <article class="card"><span class="value" id="dailyDownloadSessions">-</span><span class="label">다운로드 세션</span></article>
+        <article class="card"><span class="value" id="dailyConversion">-</span><span class="label">전환율</span></article>
+      </div>
+      <div class="top-list" id="dailyTop" hidden>
+        <h3>인기 조합 Top10</h3>
+        <ul id="dailyList"></ul>
+      </div>
+      <div class="top-list" id="dailyOthers" hidden>
+        <h3>기타 조합</h3>
+        <ul id="dailyOthersList"></ul>
+      </div>
+    </section>
+
+    <section class="section" id="overallSection" hidden>
+      <h2>누적 통계 (전체 기간)</h2>
+      <div class="grid" id="overallGrid">
+        <article class="card"><span class="value" id="overallVisits">-</span><span class="label">방문 수</span></article>
+        <article class="card"><span class="value" id="overallUnique">-</span><span class="label">고유 IP</span></article>
+        <article class="card"><span class="value" id="overallSessions">-</span><span class="label">세션 수</span></article>
+        <article class="card"><span class="value" id="overallDownloads">-</span><span class="label">다운로드</span></article>
+        <article class="card"><span class="value" id="overallDownloadIps">-</span><span class="label">다운로드 IP</span></article>
+        <article class="card"><span class="value" id="overallDownloadSessions">-</span><span class="label">다운로드 세션</span></article>
+        <article class="card"><span class="value" id="overallConversion">-</span><span class="label">전환율</span></article>
+      </div>
+      <div class="top-list" id="overallTop" hidden>
+        <h3>누적 인기 조합 Top10</h3>
+        <ul id="overallList"></ul>
+      </div>
+      <div class="top-list" id="overallOthers" hidden>
+        <h3>기타 조합</h3>
+        <ul id="overallOthersList"></ul>
+      </div>
+    </section>
+
+    <p class="status" id="status"></p>
+  </main>
+
+  <script>
+    const API_BASE = window.API_BASE || '';
+    const dateInput = document.getElementById('dateInput');
+    const apiInput = document.getElementById('apiInput');
+    const form = document.getElementById('controls');
+    const statusEl = document.getElementById('status');
+
+    const dailySection = document.getElementById('dailySection');
+    const dailyTitle = document.getElementById('dailyTitle');
+    const dailyTop = document.getElementById('dailyTop');
+    const dailyList = document.getElementById('dailyList');
+    const dailyOthers = document.getElementById('dailyOthers');
+    const dailyOthersList = document.getElementById('dailyOthersList');
+
+    const overallSection = document.getElementById('overallSection');
+    const overallTop = document.getElementById('overallTop');
+    const overallList = document.getElementById('overallList');
+    const overallOthers = document.getElementById('overallOthers');
+    const overallOthersList = document.getElementById('overallOthersList');
+
+    const dailyValues = {
+      visits: document.getElementById('dailyVisits'),
+      unique: document.getElementById('dailyUnique'),
+      sessions: document.getElementById('dailySessions'),
+      downloads: document.getElementById('dailyDownloads'),
+      downloadIps: document.getElementById('dailyDownloadIps'),
+      downloadSessions: document.getElementById('dailyDownloadSessions'),
+      conversion: document.getElementById('dailyConversion'),
+    };
+
+    const overallValues = {
+      visits: document.getElementById('overallVisits'),
+      unique: document.getElementById('overallUnique'),
+      sessions: document.getElementById('overallSessions'),
+      downloads: document.getElementById('overallDownloads'),
+      downloadIps: document.getElementById('overallDownloadIps'),
+      downloadSessions: document.getElementById('overallDownloadSessions'),
+      conversion: document.getElementById('overallConversion'),
+    };
+
+    init();
+
+    function init(){
+      dateInput.value = todayKST();
+      const storedApi = localStorage.getItem('metrics.apiBase');
+      if (storedApi) {
+        apiInput.value = storedApi;
+      }
+      form.addEventListener('submit', (evt)=>{
+        evt.preventDefault();
+        loadStats();
+      });
+      loadStats();
+    }
+
+    function todayKST(){
+      const now = new Date();
+      const offsetMs = now.getTimezoneOffset() * 60000;
+      const kst = new Date(now.getTime() + offsetMs + 9 * 3600000);
+      return kst.toISOString().slice(0, 10);
+    }
+
+    async function loadStats(){
+      const date = dateInput.value;
+      if (!date){
+        statusEl.textContent = '날짜를 선택하세요.';
+        statusEl.classList.add('error');
+        return;
+      }
+
+      const baseInput = apiInput.value.trim();
+      if (baseInput){
+        localStorage.setItem('metrics.apiBase', baseInput);
+      }
+
+      const base = baseInput || API_BASE;
+      const dailyEndpoint = combineUrl(base, `/api/stats?date=${date}`);
+      const overallEndpoint = combineUrl(base, `/api/stats?scope=overall`);
+
+      statusEl.textContent = '데이터 불러오는 중...';
+      statusEl.classList.remove('error');
+      hideSections();
+
+      try{
+        const [dailyRes, overallRes] = await Promise.all([
+          fetch(dailyEndpoint, { headers: { 'Accept': 'application/json' }, credentials: 'omit' }),
+          fetch(overallEndpoint, { headers: { 'Accept': 'application/json' }, credentials: 'omit' }),
+        ]);
+
+        if (!dailyRes.ok) throw new Error(`일별 통계 API 오류 (${dailyRes.status})`);
+        if (!overallRes.ok) throw new Error(`누적 통계 API 오류 (${overallRes.status})`);
+
+        const [dailyData, overallData] = await Promise.all([dailyRes.json(), overallRes.json()]);
+        renderDaily(dailyData);
+        renderOverall(overallData);
+        statusEl.textContent = `${dailyData.date} 통계와 누적 통계를 불러왔습니다.`;
+      }catch(err){
+        console.error('metrics fetch failed', err);
+        statusEl.textContent = err.message || '통계를 불러오지 못했습니다.';
+        statusEl.classList.add('error');
+      }
+    }
+
+    function hideSections(){
+      dailySection.hidden = true;
+      overallSection.hidden = true;
+      dailyTop.hidden = true;
+      overallTop.hidden = true;
+      dailyOthers.hidden = true;
+      overallOthers.hidden = true;
+      dailyList.innerHTML = '';
+      overallList.innerHTML = '';
+      dailyOthersList.innerHTML = '';
+      overallOthersList.innerHTML = '';
+    }
+
+    function renderDaily(data){
+      dailyTitle.textContent = `${data.date} 통계`;
+      dailyValues.visits.textContent = formatNumber(data.visits);
+      dailyValues.unique.textContent = formatNumber(data.uniqueVisitors);
+      dailyValues.sessions.textContent = formatNumber(data.uniqueSessions);
+      dailyValues.downloads.textContent = formatNumber(data.downloads);
+      dailyValues.downloadIps.textContent = formatNumber(data.uniqueDownloadIps);
+      dailyValues.downloadSessions.textContent = formatNumber(data.uniqueDownloadSessions);
+      dailyValues.conversion.textContent = formatPercent(data.conversionRate);
+      dailySection.hidden = false;
+
+      if (Array.isArray(data.topDownloads) && data.topDownloads.length){
+        renderList(dailyList, data.topDownloads);
+        dailyTop.hidden = false;
+      }
+      if (Array.isArray(data.otherDownloads) && data.otherDownloads.length){
+        renderList(dailyOthersList, data.otherDownloads);
+        dailyOthers.hidden = false;
+      }
+    }
+
+    function renderOverall(data){
+      overallValues.visits.textContent = formatNumber(data.visits);
+      overallValues.unique.textContent = formatNumber(data.uniqueVisitors);
+      overallValues.sessions.textContent = formatNumber(data.uniqueSessions);
+      overallValues.downloads.textContent = formatNumber(data.downloads);
+      overallValues.downloadIps.textContent = formatNumber(data.uniqueDownloadIps);
+      overallValues.downloadSessions.textContent = formatNumber(data.uniqueDownloadSessions);
+      overallValues.conversion.textContent = formatPercent(data.conversionRate);
+      overallSection.hidden = false;
+
+      if (Array.isArray(data.topDownloads) && data.topDownloads.length){
+        renderList(overallList, data.topDownloads);
+        overallTop.hidden = false;
+      }
+      if (Array.isArray(data.otherDownloads) && data.otherDownloads.length){
+        renderList(overallOthersList, data.otherDownloads);
+        overallOthers.hidden = false;
+      }
+    }
+
+    function formatNumber(value){
+      return typeof value === 'number' ? value.toLocaleString('ko-KR') : '-';
+    }
+
+    function formatPercent(value){
+      if (typeof value !== 'number') return '-';
+      return (value * 100).toFixed(1) + '%';
+    }
+
+    function renderList(target, items){
+      target.innerHTML = '';
+      items.forEach(({label, count})=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${label}</span><span>${formatNumber(count)}회</span>`;
+        target.appendChild(li);
+      });
+    }
+
+    function combineUrl(base, path){
+      if (!base) return path;
+      if (base.endsWith('/')) base = base.slice(0, -1);
+      return base + path;
+    }
+  </script>
+</body>
+</html>
