@@ -258,7 +258,7 @@
         <div class="control-grid">
           <div class="control-item full-width">
             <label>약국 이름 (엔터로 줄바꿈)</label>
-            <textarea id="pName" placeholder="예: 행복한 약국">행복한 약국</textarea>
+            <textarea id="pName" placeholder="예: 준모 약국">준모 약국</textarea>
           </div>
           <div class="control-item">
             <label>글씨체</label>
@@ -351,7 +351,7 @@
 
     // per-day offset state & hit regions
     // per-day offset state & hit regions
-    const offsets = { 14: { dx: 0, dy: 0 }, 15: { dx: 0, dy: 0 }, 16: { dx: 0, dy: 0 }, 17: { dx: 0, dy: 0 }, 18: { dx: 0, dy: 0 }, 19: { dx: 0, dy: 0 }, 20: { dx: 0, dy: 0 }, 21: { dx: 0, dy: 0 }, 22: { dx: 0, dy: 0 } };
+    const offsets = { 14: { dx: -16, dy: 142 }, 15: { dx: -16, dy: 142 }, 16: { dx: -16, dy: 142 }, 17: { dx: -16, dy: 142 }, 18: { dx: -16, dy: 142 }, 19: { dx: -16, dy: 142 }, 20: { dx: -16, dy: 142 }, 21: { dx: -16, dy: 142 }, 22: { dx: -16, dy: 142 } };
     const hitRegions = {}; // {d:{x,y,w,h}}
 
 
@@ -538,9 +538,9 @@
         const labelStr = isOpen ? openLabel : closedLabel;
 
         // background
-        ctx.save(); roundRect(ctx, x - 0.5, y + 1, cellW + 1, cellH - 2, 10); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
+        ctx.save(); roundRect(ctx, x - 0.5, y + 5.5, cellW + 1, cellH - 11, 10); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
         // border
-        ctx.save(); ctx.strokeStyle = stroke + '80'; ctx.lineWidth = 1; roundRect(ctx, x - 0.5, y + 1, cellW + 1, cellH - 2, 10); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.strokeStyle = stroke + '80'; ctx.lineWidth = 1; roundRect(ctx, x - 0.5, y + 5.5, cellW + 1, cellH - 11, 10); ctx.stroke(); ctx.restore();
         // text
         ctx.fillStyle = textCol; ctx.textAlign = 'left';
         ctx.font = '700 26px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(String(d), x + 10, y + 34);
@@ -588,7 +588,7 @@
       // Initialize position if needed (center)
       if (pTextState.x === 0 && pTextState.y === 0) {
         pTextState.x = cv.width / 2;
-        pTextState.y = cv.height * 0.5;
+        pTextState.y = cv.height * 0.5 + 30;
       }
 
       const lines = text.split('\n');
