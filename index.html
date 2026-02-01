@@ -351,7 +351,17 @@
 
     // per-day offset state & hit regions
     // per-day offset state & hit regions
-    const offsets = { 14: { dx: -16, dy: 142 }, 15: { dx: -16, dy: 142 }, 16: { dx: -16, dy: 142 }, 17: { dx: -16, dy: 142 }, 18: { dx: -16, dy: 142 }, 19: { dx: -16, dy: 142 }, 20: { dx: -16, dy: 142 }, 21: { dx: -16, dy: 142 }, 22: { dx: -16, dy: 142 } };
+    const offsets = {
+      14: { dx: -16, dy: 142 },
+      15: { dx: -16, dy: 142 },
+      16: { dx: -16, dy: 142 },
+      17: { dx: -16, dy: 142 },
+      18: { dx: -16, dy: 142 },
+      19: { dx: -16, dy: 142, w: 90 }, // 19일만 너비 4px 줄임 (94 -> 90)
+      20: { dx: -18, dy: 142, w: 98 }, // 20일만 너비 2px 더 확장 (총 +4px, w:98)
+      21: { dx: -16, dy: 142 },
+      22: { dx: -16, dy: 142 }
+    };
     const hitRegions = {}; // {d:{x,y,w,h}}
 
 
@@ -528,8 +538,12 @@
         const off = offsets[d] || { dx: 0, dy: 0 };
         const x = baseX + off.dx, y = baseY + off.dy;
 
+        // Custom size support
+        const w = off.w || cellW;
+        const h = off.h || cellH;
+
         // store region (overwrite if exists, last one wins)
-        hitRegions[d] = { x, y, w: cellW, h: cellH };
+        hitRegions[d] = { x, y, w, h };
 
         const isOpen = type === 'open';
         const fill = isOpen ? openFill : holidayFill;
@@ -538,20 +552,20 @@
         const labelStr = isOpen ? openLabel : closedLabel;
 
         // background
-        ctx.save(); roundRect(ctx, x - 0.5, y + 5.5, cellW + 1, cellH - 11, 10); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
+        ctx.save(); roundRect(ctx, x - 0.5, y + 5.5, w + 1, h - 11, 10); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
         // border
-        ctx.save(); ctx.strokeStyle = stroke + '80'; ctx.lineWidth = 1; roundRect(ctx, x - 0.5, y + 5.5, cellW + 1, cellH - 11, 10); ctx.stroke(); ctx.restore();
+        ctx.save(); ctx.strokeStyle = stroke + '80'; ctx.lineWidth = 1; roundRect(ctx, x - 0.5, y + 5.5, w + 1, h - 11, 10); ctx.stroke(); ctx.restore();
         // text
         ctx.fillStyle = textCol; ctx.textAlign = 'left';
         ctx.font = '700 26px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(String(d), x + 10, y + 34);
-        ctx.font = '700 18px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(labelStr, x + 10, y + cellH - 46);
+        ctx.font = '700 18px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(labelStr, x + 10, y + h - 46);
 
         // Sub-label (centered)
         const sub = labels[d];
         if (sub) {
           ctx.textAlign = 'center';
           ctx.font = '600 14px "Pretendard", "Noto Sans KR", sans-serif';
-          ctx.fillText(sub, x + cellW / 2, y + cellH - 28);
+          ctx.fillText(sub, x + w / 2, y + h - 28);
         }
       };
 
