@@ -734,6 +734,25 @@
       img.src = 'seol.jpg';
     })();
 
+    // Background Audio Logic
+    const audio = new Audio('background.flac');
+    audio.loop = true;
+    audio.id = 'bgAudio'; // for reference if needed
+
+    // Attempt play
+    audio.play().catch(() => {
+      console.log('Autoplay blocked. Waiting for user interaction.');
+      const onInteract = () => {
+        audio.play();
+        window.removeEventListener('click', onInteract);
+        window.removeEventListener('keydown', onInteract);
+        window.removeEventListener('touchstart', onInteract); // for mobile
+      };
+      window.addEventListener('click', onInteract);
+      window.addEventListener('keydown', onInteract);
+      window.addEventListener('touchstart', onInteract);
+    });
+
     document.getElementById('btnApply').addEventListener('click', draw);
     document.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('input', draw); el.addEventListener('change', draw); });
 
