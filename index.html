@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2026 설 연휴 휴무 안내 자동 생성기 (PNG 저장 Fix)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=East+Sea+Dokdo&family=Gowun+Batang&family=Nanum+Myeongjo:wght@700&family=Nanum+Pen+Script&family=Yeon+Sung&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --holiday-fill: #f2dac2;
+      --holiday-text: #d73a3a;
+      --base-text: #0d336c;
+      --grid-stroke: #0d336c;
+    }
+
+    /* Imported Fonts */
+    /* Imported Fonts */
+    /* @import url('...');  <-- Removing @import, using link in head instead */
+
+
+
+    * {
+      box-sizing: border-box;
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #0b2f66;
+      color: #fff
+    }
+
+    .wrap {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 360px 1fr 380px;
+      gap: 20px;
+      align-items: start
+    }
+
+    .panel {
+      background: #0e3a7a;
+      border: 1px solid #0a2c5b;
+      border-radius: 14px;
+      padding: 16px
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 10px;
+      font-weight: 900
+    }
+
+    fieldset {
+      border: 1px solid #204c95;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    legend {
+      padding: 0 6px;
+      color: #cdd9ff;
+      font-size: 13px
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-weight: 700
+    }
+
+    input[type="text"],
+    input[type="color"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid #254f99;
+      background: #062b5e;
+      color: #e6efff
+    }
+
+    button {
+      cursor: pointer;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 900;
+    }
+
+    .btn {
+      background: #fed73d;
+      color: #0e2244
+    }
+
+    .btn:active {
+      transform: translateY(1px)
+    }
+
+    .muted {
+      opacity: .9;
+      font-size: 12px
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      background: #082a5e
+    }
+
+    .thumb {
+      width: 100%;
+      border-radius: 12px;
+      background: #0a2c5e;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px
+    }
+
+    /* New styles for text controls */
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: #0a2c5b;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .control-item label {
+      font-size: 11px;
+      color: #cdd9ff;
+      margin: 0;
+    }
+
+    .control-item input,
+    .control-item select,
+    .control-item textarea {
+      width: 100%;
+      background: #062b5e;
+      border: 1px solid #254f99;
+      color: white;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .control-item textarea {
+      resize: vertical;
+      height: 60px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- COLUMN 1: Date Settings -->
+    <section class="panel">
+      <h1>날짜 설정</h1>
+
+      <fieldset>
+        <legend>휴일 선택</legend>
+        <div class="grid-3">
+          <label><input type="checkbox" class="day" value="14">2/14</label>
+          <label><input type="checkbox" class="day" value="15">2/15</label>
+          <label><input type="checkbox" class="day" value="16">2/16</label>
+          <label><input type="checkbox" class="day" value="17">2/17</label>
+          <label><input type="checkbox" class="day" value="18">2/18</label>
+          <label><input type="checkbox" class="day" value="19">2/19</label>
+          <label><input type="checkbox" class="day" value="20">2/20</label>
+          <label><input type="checkbox" class="day" value="21">2/21</label>
+          <label><input type="checkbox" class="day" value="22">2/22</label>
+        </div>
+
+        <p class="muted">날짜를 체크한 뒤, 캔버스에서 해당 칸을 드래그해 정확히 맞추세요.-> 키보드 방향키로 미세조정가능합니다.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>정상영업 선택</legend>
+        <div class="grid-3">
+          <label><input type="checkbox" class="day-open" value="14">2/14</label>
+          <label><input type="checkbox" class="day-open" value="15">2/15</label>
+          <label><input type="checkbox" class="day-open" value="16">2/16</label>
+          <label><input type="checkbox" class="day-open" value="17">2/17</label>
+          <label><input type="checkbox" class="day-open" value="18">2/18</label>
+          <label><input type="checkbox" class="day-open" value="19">2/19</label>
+          <label><input type="checkbox" class="day-open" value="20">2/20</label>
+          <label><input type="checkbox" class="day-open" value="21">2/21</label>
+          <label><input type="checkbox" class="day-open" value="22">2/22</label>
+        </div>
+
+        <p class="muted">휴무와 중복 체크 시 정상영업으로 표시됩니다.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>공휴일 라벨</legend>
+        <div>
+          <label>2/16<label><input id="lab16" type="text" placeholder="설날 연휴" value="설날 연휴"></label></label>
+        </div>
+        <div>
+          <label>2/17<label><input id="lab17" type="text" placeholder="설날" value="설날"></label></label>
+        </div>
+        <div>
+          <label>2/18<label><input id="lab18" type="text" placeholder="설날 연휴" value="설날 연휴"></label></label>
+        </div>
+      </fieldset>
+    </section>
+
+    <!-- COLUMN 2: Preview -->
+    <section class="panel">
+      <h1>미리보기 <span style="font-size:12px; font-weight:600; color:#fed73d; margin-left:8px;">made by Cephalosporin
+          26.02.01</span></h1>
+      <div class="thumb">
+        <canvas id="cv" width="768" height="1077"></canvas>
+      </div>
+      <p class="muted">마우스로 각 칸을 드래그하여 위치를 맞춘 후 저장하세요. -> 방향키로 미세조정</p>
+    </section>
+
+    <!-- COLUMN 3: Design Settings -->
+    <section class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h1>디자인 설정</h1>
+        <button id="btnApply" class="btn" style="padding:6px 12px; font-size:13px;">적용</button>
+      </div>
+
+      <!-- Pharmacy Name Panel (Integrated) -->
+
+      <fieldset>
+        <legend>약국 이름 꾸미기</legend>
+        <div class="control-grid">
+          <div class="control-item full-width">
+            <label>약국 이름 (엔터로 줄바꿈)</label>
+            <textarea id="pName" placeholder="예: 준모 약국">준모 약국</textarea>
+          </div>
+          <div class="control-item">
+            <label>글씨체</label>
+            <select id="pFont">
+              <option value="'Nanum Pen Script', cursive" selected>나눔펜글씨</option>
+              <option value="'Nanum Myeongjo', serif">나눔명조</option>
+              <option value="'Do Hyeon', sans-serif">도현체</option>
+              <option value="'Gowun Batang', serif">고운바탕</option>
+              <option value="'Yeon Sung', cursive">연성체</option>
+              <option value="'East Sea Dokdo', cursive">독도체</option>
+              <option value="'Black Han Sans', sans-serif">검은고딕</option>
+            </select>
+          </div>
+          <div class="control-item">
+            <label>크기 (<span id="pSizeDisp">100</span>px)</label>
+            <input type="range" id="pSize" min="20" max="200" value="100">
+          </div>
+          <div class="control-item">
+            <label>줄 간격</label>
+            <input type="range" id="pLineHeight" min="1.0" max="2.0" step="0.1" value="1.2">
+          </div>
+          <div class="control-item">
+            <label>색상</label>
+            <input type="color" id="pColor" value="#2c2c2c">
+          </div>
+          <div class="control-item">
+            <label>투명도</label>
+            <input type="range" id="pAlpha" min="0.1" max="1.0" step="0.05" value="0.85">
+          </div>
+          <div class="control-item">
+            <label>합성 모드</label>
+            <select id="pBlend">
+              <option value="source-over">기본</option>
+              <option value="multiply" selected>곱하기</option>
+              <option value="color-burn">태우기</option>
+              <option value="overlay">오버레이</option>
+            </select>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:6px;">이름 클릭 & 드래그로 글자 이동</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>정상영업 스타일</legend>
+        <div>
+          <label>표시 문자열<input id="openLabel" type="text" value="정상영업"></label>
+        </div>
+        <div>
+          <label>문자 색<input id="openText" type="color" value="#1565c0"></label>
+        </div>
+        <div>
+          <label>칸 배경색<input id="openFill" type="color" value="#e3f2fd"></label>
+        </div>
+        <div>
+          <label>테두리색<input id="openStroke" type="color" value="#0d336c"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>휴일 텍스트</legend>
+        <div>
+          <label>표시 문자열<input id="closedLabel" type="text" value="휴무"></label>
+        </div>
+        <div>
+          <label>문자 색<input id="holidayText" type="color" value="#d73a3a"></label>
+        </div>
+        <div>
+          <label>칸 배경색<input id="holidayFill" type="color" value="#f2dac2"></label>
+        </div>
+        <div>
+          <label>테두리색<input id="gridStroke" type="color" value="#0d336c"></label>
+        </div>
+      </fieldset>
+
+      <div style="margin-top:20px;">
+        <button id="btnSave" class="btn" style="width:100%; padding:15px; font-size:16px;">PNG로 저장</button>
+        <p class="muted" style="margin-top:6px; text-align:center;">이미지는 약준모에서 제공한 이미지를 이용합니다.</p>
+      </div>
+    </section>
+  </div>
+
+
+  <script>
+    const cv = document.getElementById('cv');
+    const ctx = cv.getContext('2d');
+    let bg = null;
+
+    // 🔧 고정 좌표
+    const CFG = { calX: 65, calY: 449, cellW: 94, cellH: 99, headerH: 52 };
+
+    // per-day offset state & hit regions
+    // per-day offset state & hit regions
+    const offsets = {
+      14: { dx: -16, dy: 142 },
+      15: { dx: -16, dy: 142 },
+      16: { dx: -16, dy: 142 },
+      17: { dx: -16, dy: 142 },
+      18: { dx: -16, dy: 142 },
+      19: { dx: -16, dy: 142, w: 90 }, // 19일만 너비 4px 줄임 (94 -> 90)
+      20: { dx: -18, dy: 142, w: 98 }, // 20일만 너비 2px 더 확장 (총 +4px, w:98)
+      21: { dx: -16, dy: 142 },
+      22: { dx: -16, dy: 142 }
+    };
+    const hitRegions = {}; // {d:{x,y,w,h}}
+
+
+    let draggingDay = null; let dragStart = null; let selectedDay = null;
+
+    // 💊 Pharmacy Text State
+    let pTextState = {
+      x: 0, y: 0,
+      isDragging: false,
+      dragStart: { x: 0, y: 0 }
+    };
+
+
+    const API_BASE = window.API_BASE || '';
+    const SESSION_KEY = 'calendar.sessionId';
+    const sessionId = ensureSessionId();
+    const pageOpenedAt = performance.now();
+
+    const ENV_SNAPSHOT = (() => {
+      try {
+        return {
+          tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          lang: navigator.language,
+          platform: navigator.platform || 'unknown',
+        };
+      } catch (err) {
+        return {};
+      }
+    })();
+
+    function ensureSessionId() {
+      try {
+        let id = localStorage.getItem(SESSION_KEY);
+        if (!id) {
+          id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackSessionId();
+          localStorage.setItem(SESSION_KEY, id);
+        }
+        return id;
+      } catch (err) {
+        console.warn('session storage unavailable', err);
+        return (crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackSessionId();
+      }
+    }
+
+    function fallbackSessionId() {
+      return 's-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    }
+
+    function getCheckedDays() {
+      // Combine both lists, deduplicate
+      const closed = Array.from(document.querySelectorAll('.day:checked')).map(el => +el.value);
+      const open = Array.from(document.querySelectorAll('.day-open:checked')).map(el => +el.value);
+      return [...new Set([...closed, ...open])];
+    }
+
+    function postJSON(endpoint, payload) {
+      const url = API_BASE + endpoint;
+      const body = JSON.stringify(payload || {});
+      try {
+        if (navigator.sendBeacon) {
+          const blob = new Blob([body], { type: 'application/json' });
+          if (navigator.sendBeacon(url, blob)) return;
+        }
+      } catch (err) {
+        console.warn('sendBeacon failed', err);
+      }
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        mode: 'cors',
+        credentials: 'omit',
+        keepalive: true,
+      }).catch(err => console.warn('Metrics post failed', err));
+    }
+
+    function buildVisitPayload() {
+      return {
+        path: location.pathname + location.search,
+        sessionId,
+        meta: { ...ENV_SNAPSHOT },
+      };
+    }
+
+    function buildDownloadPayload(days, filename, options) {
+      const payload = {
+        sessionId,
+        path: location.pathname + location.search,
+        days,
+        filename,
+        meta: {
+          ...ENV_SNAPSHOT,
+          daysCount: Array.isArray(days) ? days.length : 0,
+          elapsedMs: Math.round(performance.now() - pageOpenedAt),
+        },
+      };
+      if (options && typeof options === 'object') {
+        const extras = {};
+        ['closedLabel', 'holidayFill', 'holidayText', 'gridStroke', 'openLabel', 'openFill', 'openText', 'openStroke'].forEach((key) => {
+          if (options[key]) extras[key] = options[key];
+        });
+        if (Object.keys(extras).length) {
+          payload.meta = { ...payload.meta, ...extras };
+        }
+      }
+      return payload;
+    }
+
+    function logVisit() {
+      try {
+        postJSON('/api/visit', buildVisitPayload());
+      } catch (err) {
+        console.warn('Visit log failed', err);
+      }
+    }
+
+    function logDownload(payload) {
+      try {
+        const body = payload && typeof payload === 'object' ? { ...payload } : { sessionId };
+        if (!body.sessionId) body.sessionId = sessionId;
+        postJSON('/api/download', body);
+      } catch (err) {
+        console.warn('Download log failed', err);
+      }
+    }
+
+    window.addEventListener('load', logVisit, { once: true });
+
+    const posMap = {
+      14: { row: 1, col: 6 },
+      15: { row: 2, col: 0 }, 16: { row: 2, col: 1 }, 17: { row: 2, col: 2 }, 18: { row: 2, col: 3 }, 19: { row: 2, col: 4 }, 20: { row: 2, col: 5 }, 21: { row: 2, col: 6 },
+      22: { row: 3, col: 0 }
+    };
+
+
+
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function getVal(id) { return document.getElementById(id).value; }
+
+    function draw() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (bg) ctx.drawImage(bg, 0, 0, cv.width, cv.height);
+      else { ctx.fillStyle = "#082a5e"; ctx.fillRect(0, 0, cv.width, cv.height); }
+
+      const { calX, calY, cellW, cellH, headerH } = CFG;
+
+      // Closed Styles
+      const holidayFill = getVal('holidayFill'), holidayText = getVal('holidayText'), gridStroke = getVal('gridStroke'), closedLabel = getVal('closedLabel');
+
+      // Open Styles
+      const openFill = getVal('openFill'), openText = getVal('openText'), openStroke = getVal('openStroke'), openLabel = getVal('openLabel');
+
+      const checkedClosed = Array.from(document.querySelectorAll('.day:checked')).map(el => +el.value);
+      const checkedOpen = Array.from(document.querySelectorAll('.day-open:checked')).map(el => +el.value);
+
+      const labels = { 16: getVal('lab16'), 17: getVal('lab17'), 18: getVal('lab18') };
+
+      Object.keys(hitRegions).forEach(k => delete hitRegions[k]);
+
+      // Helper to draw a cell
+      const drawCell = (d, type) => {
+        const p = posMap[d]; if (!p) return;
+        const baseX = calX + p.col * cellW, baseY = calY + headerH + p.row * cellH;
+        const off = offsets[d] || { dx: 0, dy: 0 };
+        const x = baseX + off.dx, y = baseY + off.dy;
+
+        // Custom size support
+        const w = off.w || cellW;
+        const h = off.h || cellH;
+
+        // store region (overwrite if exists, last one wins)
+        hitRegions[d] = { x, y, w, h };
+
+        const isOpen = type === 'open';
+        const fill = isOpen ? openFill : holidayFill;
+        const stroke = isOpen ? openStroke : gridStroke;
+        const textCol = isOpen ? openText : holidayText;
+        const labelStr = isOpen ? openLabel : closedLabel;
+
+        // background
+        ctx.save(); roundRect(ctx, x - 0.5, y + 5.5, w + 1, h - 11, 10); ctx.fillStyle = fill; ctx.fill(); ctx.restore();
+        // border
+        ctx.save(); ctx.strokeStyle = stroke + '80'; ctx.lineWidth = 1; roundRect(ctx, x - 0.5, y + 5.5, w + 1, h - 11, 10); ctx.stroke(); ctx.restore();
+        // text
+        ctx.fillStyle = textCol; ctx.textAlign = 'left';
+        ctx.font = '700 26px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(String(d), x + 10, y + 34);
+        ctx.font = '700 18px "Pretendard", "Noto Sans KR", sans-serif'; ctx.fillText(labelStr, x + 10, y + h - 46);
+
+        // Sub-label (centered)
+        const sub = labels[d];
+        if (sub) {
+          ctx.textAlign = 'center';
+          ctx.font = '600 14px "Pretendard", "Noto Sans KR", sans-serif';
+          ctx.fillText(sub, x + w / 2, y + h - 28);
+        }
+      };
+
+      // Draw Closed first
+      checkedClosed.forEach(d => drawCell(d, 'closed'));
+
+      // Draw Open second (overwrites if same day selected)
+      checkedOpen.forEach(d => drawCell(d, 'open'));
+
+      // 💊 Draw Custom Text
+      drawPharmacyText();
+    }
+
+    function drawPharmacyText() {
+      const text = document.getElementById('pName').value;
+      if (!text) return;
+
+      const font = document.getElementById('pFont').value;
+      const size = parseInt(document.getElementById('pSize').value, 10);
+      document.getElementById('pSizeDisp').textContent = size;
+      const lineHeight = parseFloat(document.getElementById('pLineHeight').value);
+      const color = document.getElementById('pColor').value;
+      const alpha = document.getElementById('pAlpha').value;
+      const blend = document.getElementById('pBlend').value;
+
+      ctx.save();
+      ctx.font = `${size}px ${font}`;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      ctx.globalCompositeOperation = blend;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Initialize position if needed (center)
+      if (pTextState.x === 0 && pTextState.y === 0) {
+        pTextState.x = cv.width / 2;
+        pTextState.y = cv.height * 0.5 + 30;
+      }
+
+      const lines = text.split('\n');
+      const totalHeight = (lines.length - 1) * (size * lineHeight);
+      const startY = pTextState.y - totalHeight / 2;
+
+      lines.forEach((line, i) => {
+        const y = startY + i * (size * lineHeight);
+        ctx.fillText(line, pTextState.x, y);
+      });
+      ctx.restore();
+    }
+
+
+    // canvas helpers
+    function getCanvasPoint(evt) {
+      const rect = cv.getBoundingClientRect();
+      const scaleX = cv.width / rect.width;
+      const scaleY = cv.height / rect.height;
+      const x = (evt.clientX - rect.left) * scaleX;
+      const y = (evt.clientY - rect.top) * scaleY;
+      return { x, y };
+    }
+    function findDayAt(x, y) {
+      const checked = getCheckedDays();
+      for (const d of checked) {
+        const r = hitRegions[d];
+        if (!r) continue;
+        if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return d;
+      }
+      return null;
+    }
+
+    // always-on drag
+    cv.addEventListener('mousedown', (e) => {
+      const { x, y } = getCanvasPoint(e);
+
+      // 1. Try finding a day cell first
+      const d = findDayAt(x, y);
+      if (d) {
+        draggingDay = d; selectedDay = d;
+        const off = offsets[d] || { dx: 0, dy: 0 };
+        dragStart = { x, y, dx: off.dx, dy: off.dy };
+        draw();
+        return;
+      }
+
+      // 2. If not day, check text hit
+      const text = document.getElementById('pName').value;
+      if (text) {
+        // Rough hit detection for text
+        const size = parseInt(document.getElementById('pSize').value, 10);
+        const lines = text.split('\n');
+        const lineHeight = parseFloat(document.getElementById('pLineHeight').value);
+        // Very rough box approximation (width assumed 300 or measured if context available, but let's be generous)
+        // If we want better hit testing, we need to measure.
+        ctx.font = `${size}px ${document.getElementById('pFont').value}`;
+        let maxWidth = 0;
+        lines.forEach(l => { const w = ctx.measureText(l).width; if (w > maxWidth) maxWidth = w; });
+
+        const h = size + ((lines.length - 1) * (size * lineHeight));
+
+        if (Math.abs(x - pTextState.x) < maxWidth / 2 + 40 && Math.abs(y - pTextState.y) < h / 2 + 40) {
+          pTextState.isDragging = true;
+          pTextState.dragStart = { x: pTextState.x, y: pTextState.y, mouseX: x, mouseY: y };
+          cv.style.cursor = 'move';
+        }
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      const { x, y } = getCanvasPoint(e);
+
+      if (draggingDay) {
+        const dx = x - dragStart.x; const dy = y - dragStart.y;
+        offsets[draggingDay] = { dx: Math.round(dragStart.dx + dx), dy: Math.round(dragStart.dy + dy) };
+        draw();
+      } else if (pTextState.isDragging) {
+        const dx = x - pTextState.dragStart.mouseX;
+        const dy = y - pTextState.dragStart.mouseY;
+        pTextState.x = pTextState.dragStart.x + dx;
+        pTextState.y = pTextState.dragStart.y + dy;
+        draw();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      draggingDay = null;
+      pTextState.isDragging = false;
+      cv.style.cursor = 'default';
+    });
+
+
+    // keyboard nudge
+    window.addEventListener('keydown', (e) => {
+      // Don't nudge if user is typing in an input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+      if (!selectedDay) return;
+      const step = e.shiftKey ? 5 : 1;
+      const off = offsets[selectedDay] || (offsets[selectedDay] = { dx: 0, dy: 0 });
+      if (e.key === 'ArrowLeft') { off.dx -= step; e.preventDefault(); }
+      if (e.key === 'ArrowRight') { off.dx += step; e.preventDefault(); }
+      if (e.key === 'ArrowUp') { off.dy -= step; e.preventDefault(); }
+      if (e.key === 'ArrowDown') { off.dy += step; e.preventDefault(); }
+      draw();
+    });
+
+    // ---- Save PNG (robust) ----
+    document.getElementById('btnSave').addEventListener('click', () => {
+      try {
+        draw(); // ensure latest frame
+        const daysForLog = getCheckedDays();
+        const filename = makeFileName(daysForLog);
+        const downloadPayload = buildDownloadPayload(daysForLog, filename, { closedLabel, holidayFill, holidayText, gridStroke });
+        if (cv.toBlob) {
+          cv.toBlob((blob) => {
+            if (!blob) { alert('PNG 생성 실패'); return; }
+            logDownload(downloadPayload);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename; a.rel = 'noopener';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+          }, 'image/png');
+        } else {
+          const dataUrl = cv.toDataURL('image/png');
+          logDownload(downloadPayload);
+          const a = document.createElement('a');
+          a.href = dataUrl; a.download = filename; a.rel = 'noopener';
+          document.body.appendChild(a); a.click(); a.remove();
+        }
+      } catch (err) {
+        console.error('PNG save error:', err);
+        alert('PNG 저장 중 오류가 발생했습니다.\\n만약 로컬 파일로 직접 열었다면, 간단한 서버로 열어주세요:\\npython -m http.server');
+      }
+    });
+
+    // auto-load background (same folder)
+    (function loadBG() {
+      const img = new Image();
+      img.onload = () => { bg = img; draw(); };
+      img.onerror = () => { console.warn('seol.jpg 로드 실패. 배경 없이 렌더링합니다.'); draw(); };
+      img.src = 'seol.jpg';
+    })();
+
+    // Background Audio Logic
+    const audio = new Audio('background.mp3');
+    audio.loop = true;
+    audio.id = 'bgAudio'; // for reference if needed
+
+    // Attempt play
+    audio.play().catch(() => {
+      console.log('Autoplay blocked. Waiting for user interaction.');
+      const onInteract = () => {
+        audio.play();
+        window.removeEventListener('click', onInteract);
+        window.removeEventListener('keydown', onInteract);
+        window.removeEventListener('touchstart', onInteract); // for mobile
+      };
+      window.addEventListener('click', onInteract);
+      window.addEventListener('keydown', onInteract);
+      window.addEventListener('touchstart', onInteract);
+    });
+
+    document.getElementById('btnApply').addEventListener('click', draw);
+    document.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('input', draw); el.addEventListener('change', draw); });
+
+    function makeFileName(days) {
+
+      const list = Array.isArray(days) && days.length ? [...days] : getCheckedDays();
+      if (!list.length) return '설연휴휴무안내.png';
+      const tag = list.slice().sort((a, b) => a - b).map(d => String(d).padStart(2, '0')).join('-');
+      return '설연휴휴무안내_' + tag + '.png';
+    }
+
+    draw();
+  </script>
+</body>
+
+</html>

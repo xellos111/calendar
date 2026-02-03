@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>약국 이름 넣기 (줄바꿈 가능)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=East+Sea+Dokdo&family=Gowun+Batang&family=Nanum+Myeongjo:wght@700&family=Nanum+Pen+Script&family=Yeon+Sung&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gowun Batang', serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        select,
+        input[type="color"],
+        textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+
+        button.download {
+            background-color: #2ecc71;
+        }
+
+        button.download:hover {
+            background-color: #27ae60;
+        }
+
+        .canvas-container {
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            line-height: 0;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Font Previews with correct styling */
+        option[value*="Nanum Myeongjo"] {
+            font-family: 'Nanum Myeongjo', serif;
+        }
+
+        option[value*="Do Hyeon"] {
+            font-family: 'Do Hyeon', sans-serif;
+        }
+
+        option[value*="Gowun Batang"] {
+            font-family: 'Gowun Batang', serif;
+        }
+
+        option[value*="East Sea Dokdo"] {
+            font-family: 'East Sea Dokdo', cursive;
+            font-size: 1.2em;
+        }
+
+        option[value*="Yeon Sung"] {
+            font-family: 'Yeon Sung', cursive;
+        }
+
+        option[value*="Black Han Sans"] {
+            font-family: 'Black Han Sans', sans-serif;
+        }
+
+        option[value*="Nanum Pen Script"] {
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>약국 이름 카드 만들기</h1>
+
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>약국이름 (엔터로 줄바꿈)</label>
+                <textarea id="pharmacyName" placeholder="내용을 입력하세요">행복한 약국</textarea>
+            </div>
+
+            <div class="control-group">
+                <label>글씨체</label>
+                <select id="fontFamily">
+                    <option value="'Nanum Myeongjo', serif">나눔명조 (클래식)</option>
+                    <option value="'Do Hyeon', sans-serif">도현체 (힘찬 느낌)</option>
+                    <option value="'Gowun Batang', serif">고운바탕 (차분함)</option>
+                    <option value="'Yeon Sung', cursive">연성체 (우아한 붓글씨)</option>
+                    <option value="'East Sea Dokdo', cursive">독도체 (거친 붓글씨)</option>
+                    <option value="'Nanum Pen Script', cursive" selected>나눔펜글씨 (귀여운 손글씨)</option>
+                    <option value="'Black Han Sans', sans-serif">검은고딕 (매우 굵음)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>크기 (<span id="fontSizeDisplay">100</span>px)</label>
+                <input type="range" id="fontSize" min="20" max="200" value="100">
+            </div>
+
+            <div class="control-group">
+                <label>줄 간격 (두 줄 이상일 때)</label>
+                <input type="range" id="lineHeight" min="1.0" max="2.0" step="0.1" value="1.2">
+            </div>
+
+            <div class="control-group">
+                <label>색상</label>
+                <input type="color" id="textColor" value="#2c2c2c">
+            </div>
+
+            <div class="control-group">
+                <label>투명도</label>
+                <input type="range" id="opacity" min="0.1" max="1.0" step="0.05" value="0.85">
+            </div>
+
+            <div class="control-group">
+                <label>합성 모드</label>
+                <select id="blendMode">
+                    <option value="source-over">기본 (덮어쓰기)</option>
+                    <option value="multiply" selected>곱하기 (자연스러운 잉크)</option>
+                    <option value="color-burn">태우기 (진한 각인)</option>
+                    <option value="overlay">오버레이 (배경과 조화)</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button onclick="draw()">다시 그리기</button>
+                <button class="download" onclick="downloadImage()">이미지 저장</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="cardCanvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cardCanvas');
+        const ctx = canvas.getContext('2d');
+        const image = new Image();
+
+        // Controls
+        const textInput = document.getElementById('pharmacyName');
+        const fontSelect = document.getElementById('fontFamily');
+        const fontSizeInput = document.getElementById('fontSize');
+        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+        const lineHeightInput = document.getElementById('lineHeight');
+        const colorInput = document.getElementById('textColor');
+        const opacityInput = document.getElementById('opacity');
+        const blendModeInput = document.getElementById('blendMode');
+
+        let textX = 0;
+        let textY = 0;
+        let isDragging = false;
+        let isImageLoaded = false;
+
+        // Load Image
+        image.src = 'seol.jpg';
+        image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            // Initial position center (approx)
+            textX = canvas.width / 2;
+            textY = canvas.height * 0.5;
+
+            isImageLoaded = true;
+            draw();
+        };
+
+        function draw() {
+            if (!isImageLoaded) return;
+
+            // Clear and Draw Background
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(image, 0, 0);
+
+            // Text Settings
+            const rawText = textInput.value;
+            const lines = rawText.split('\n');
+            const fontSize = parseInt(fontSizeInput.value, 10);
+            const lineHeight = parseFloat(lineHeightInput.value);
+
+            fontSizeDisplay.textContent = fontSize;
+
+            ctx.font = `${fontSize}px ${fontSelect.value}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Apply Styling
+            ctx.globalAlpha = opacityInput.value;
+            ctx.globalCompositeOperation = blendModeInput.value;
+            ctx.fillStyle = colorInput.value;
+
+            // Draw Text Lines
+            // If multiple lines, we center the block around textY
+            const totalHeight = (lines.length - 1) * (fontSize * lineHeight);
+            const startY = textY - totalHeight / 2;
+
+            lines.forEach((line, index) => {
+                const y = startY + index * (fontSize * lineHeight);
+                ctx.fillText(line, textX, y);
+            });
+
+            // Reset context
+            ctx.globalAlpha = 1.0;
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `pharmacy_card_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Dragging Logic
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const mouseX = (e.clientX - rect.left) * scaleX;
+            const mouseY = (e.clientY - rect.top) * scaleY;
+
+            // Hit detection with multiline support (rough box)
+            const fontSize = parseInt(fontSizeInput.value, 10);
+            const lines = textInput.value.split('\n');
+            const lineHeight = parseFloat(lineHeightInput.value);
+            const totalHeight = fontSize + ((lines.length - 1) * (fontSize * lineHeight));
+
+            // Find max width among lines
+            let maxWidth = 0;
+            lines.forEach(line => {
+                const w = ctx.measureText(line).width;
+                if (w > maxWidth) maxWidth = w;
+            });
+
+            // Allow some padding
+            if (Math.abs(mouseX - textX) < maxWidth / 2 + 50 &&
+                Math.abs(mouseY - textY) < totalHeight / 2 + 50) {
+                isDragging = true;
+                canvas.style.cursor = 'move';
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                textX = (e.clientX - rect.left) * scaleX;
+                textY = (e.clientY - rect.top) * scaleY;
+                draw();
+            }
+        });
+
+        const stopDrag = () => {
+            isDragging = false;
+            canvas.style.cursor = 'default';
+        };
+
+        canvas.addEventListener('mouseup', stopDrag);
+        canvas.addEventListener('mouseout', stopDrag);
+
+        // Event Listeners for controls
+        [textInput, fontSelect, fontSizeInput, lineHeightInput, colorInput, opacityInput, blendModeInput].forEach(el => {
+            el.addEventListener('input', draw);
+            el.addEventListener('change', draw);
+        });
+
+    </script>
+</body>
+
+</html>

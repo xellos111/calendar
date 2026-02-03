@@ -1,0 +1,16 @@
+{
+  "name": "seol-calendar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static Seol closure generator with metrics API",
+  "main": "server/server.js",
+  "scripts": {
+    "start:api": "node server/server.js",
+    "report:today": "node scripts/daily-report.js",
+    "report:date": "node scripts/daily-report.js --date=2025-10-01",
+    "report:overall": "node scripts/daily-report.js --overall"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
