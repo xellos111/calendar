@@ -42,7 +42,9 @@
       display: grid;
       grid-template-columns: 360px 1fr 380px;
       gap: 20px;
-      align-items: start
+      align-items: start;
+      zoom: 0.85;
+      /* Fit to screen as requested */
     }
 
     .panel {
@@ -177,6 +179,106 @@
     .full-width {
       grid-column: 1 / -1;
     }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #0e3a7a;
+      border: 2px solid #fed73d;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      color: white;
+      max-width: 400px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      animation: popIn 0.3s ease-out;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 20px;
+      color: #fed73d;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-img {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn-cancel {
+      background: #062b5e;
+      color: #cdd9ff;
+      border: 1px solid #204c95;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #cv,
+      #cv * {
+        visibility: visible;
+      }
+
+      #cv {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0;
+        padding: 0;
+      }
+
+      .modal-overlay {
+        display: none !important;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
   </style>
 </head>
 
@@ -184,7 +286,14 @@
   <div class="wrap">
     <!-- COLUMN 1: Date Settings -->
     <section class="panel">
-      <h1>날짜 설정</h1>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>날짜 설정</h1>
+        <a href="https://www.pharmmaker.com" target="_blank"
+          style="display:flex; align-items:center; gap:8px; text-decoration:none; color:#cdd9ff; font-weight:700; font-size:15px; background:#0a2c5b; padding:8px 14px; border-radius:10px; border:1px solid #204c95;">
+          <img src="icon.ico" alt="약준모" style="width:20px; height:20px;">
+          약준모 바로가기
+        </a>
+      </div>
 
       <fieldset>
         <legend>휴일 선택</legend>
@@ -237,7 +346,7 @@
     <!-- COLUMN 2: Preview -->
     <section class="panel">
       <h1>미리보기 <span style="font-size:12px; font-weight:600; color:#fed73d; margin-left:8px;">made by Cephalosporin
-          26.02.01</span></h1>
+          26.02.06</span></h1>
       <div class="thumb">
         <canvas id="cv" width="768" height="1077"></canvas>
       </div>
@@ -338,6 +447,19 @@
         <p class="muted" style="margin-top:6px; text-align:center;">이미지는 약준모에서 제공한 이미지를 이용합니다.</p>
       </div>
     </section>
+  </div>
+
+  <!-- Download Confirmation Modal -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-content">
+      <div class="modal-title">새해 복 많이 받으세요!</div>
+      <a href="https://www.pharmmaker.com" target="_blank" style="display:block; cursor:pointer;">
+        <img src="2026logo.png" alt="Happy New Year" class="modal-img">
+      </a>
+      <div class="modal-btns">
+        <button id="btnModalConfirm" class="btn" style="padding:10px 24px; font-size:16px;">저장 & 출력</button>
+      </div>
+    </div>
   </div>
 
 
@@ -511,7 +633,12 @@
 
     function getVal(id) { return document.getElementById(id).value; }
 
+    let animationId = null;
+
     function draw() {
+      // Clear previous loop if any to avoid stacking
+      if (animationId) cancelAnimationFrame(animationId);
+
       ctx.clearRect(0, 0, cv.width, cv.height);
       if (bg) ctx.drawImage(bg, 0, 0, cv.width, cv.height);
       else { ctx.fillStyle = "#082a5e"; ctx.fillRect(0, 0, cv.width, cv.height); }
@@ -577,6 +704,67 @@
 
       // 💊 Draw Custom Text
       drawPharmacyText();
+
+      // ✨ Draw Selection Arrows
+      if (selectedDay && hitRegions[selectedDay]) {
+        drawSelectionIndicators(hitRegions[selectedDay]);
+        // Request next frame for animation
+        animationId = requestAnimationFrame(draw);
+      }
+    }
+
+    function drawSelectionIndicators(rect) {
+      const { x, y, w, h } = rect;
+      const size = 6; // arrow size
+      const gap = 4;  // distance from cell
+
+      // Pulse Effect
+      const time = Date.now() / 300; // speed
+      const alpha = 0.5 + 0.5 * Math.sin(time); // 0.0 ~ 1.0 (oscillates)
+      // actually let's keep it visible min 0.3
+      const pulseAlpha = 0.4 + 0.6 * Math.abs(Math.sin(time));
+
+      const color = `rgba(255, 61, 0, ${pulseAlpha})`; // bright orange/red with alpha
+
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+
+      // Top Arrow (Points UP)
+      const mx = x + w / 2;
+      ctx.moveTo(mx, y - gap - size); // Tip far
+      ctx.lineTo(mx - size, y - gap); // Base close
+      ctx.lineTo(mx + size, y - gap); // Base close
+
+      // Bottom Arrow (Points DOWN)
+      ctx.moveTo(mx, y + h + gap + size); // Tip far
+      ctx.lineTo(mx - size, y + h + gap); // Base close
+      ctx.lineTo(mx + size, y + h + gap); // Base close
+
+      // Left Arrow (Points LEFT)
+      const my = y + h / 2;
+      ctx.moveTo(x - gap - size, my); // Tip far
+      ctx.lineTo(x - gap, my - size); // Base close
+      ctx.lineTo(x - gap, my + size); // Base close
+
+      // Right Arrow (Points RIGHT)
+      ctx.moveTo(x + w + gap + size, my); // Tip far
+      ctx.lineTo(x + w + gap, my - size); // Base close
+      ctx.lineTo(x + w + gap, my + size); // Base close
+
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      return ctx;
     }
 
     function drawPharmacyText() {
@@ -636,49 +824,57 @@
       return null;
     }
 
-    // always-on drag
-    cv.addEventListener('mousedown', (e) => {
-      const { x, y } = getCanvasPoint(e);
 
-      // 1. Try finding a day cell first
+    // RE-IMPLEMENTING mousedown to include clear logic and text hit
+    // Replaces previous listener entirely for clarity
+    cv.onmousedown = (e) => {
+      const { x, y } = getCanvasPoint(e);
+      let hit = false;
+
+      // 1. Day Cell
       const d = findDayAt(x, y);
       if (d) {
         draggingDay = d; selectedDay = d;
         const off = offsets[d] || { dx: 0, dy: 0 };
         dragStart = { x, y, dx: off.dx, dy: off.dy };
-        draw();
-        return;
+        hit = true;
       }
 
-      // 2. If not day, check text hit
+      // 2. Text
       const text = document.getElementById('pName').value;
       if (text) {
-        // Rough hit detection for text
         const size = parseInt(document.getElementById('pSize').value, 10);
         const lines = text.split('\n');
         const lineHeight = parseFloat(document.getElementById('pLineHeight').value);
-        // Very rough box approximation (width assumed 300 or measured if context available, but let's be generous)
-        // If we want better hit testing, we need to measure.
         ctx.font = `${size}px ${document.getElementById('pFont').value}`;
         let maxWidth = 0;
         lines.forEach(l => { const w = ctx.measureText(l).width; if (w > maxWidth) maxWidth = w; });
-
         const h = size + ((lines.length - 1) * (size * lineHeight));
 
         if (Math.abs(x - pTextState.x) < maxWidth / 2 + 40 && Math.abs(y - pTextState.y) < h / 2 + 40) {
           pTextState.isDragging = true;
           pTextState.dragStart = { x: pTextState.x, y: pTextState.y, mouseX: x, mouseY: y };
           cv.style.cursor = 'move';
+          hit = true;
+          // Optionally clear selectedDay when text is selected? Or keep it?
+          // Let's clear selectedDay to avoid confusion
+          selectedDay = null;
         }
       }
-    });
+
+      if (!hit) {
+        selectedDay = null;
+      }
+      draw();
+    };
 
     window.addEventListener('mousemove', (e) => {
       const { x, y } = getCanvasPoint(e);
 
       if (draggingDay) {
         const dx = x - dragStart.x; const dy = y - dragStart.y;
-        offsets[draggingDay] = { dx: Math.round(dragStart.dx + dx), dy: Math.round(dragStart.dy + dy) };
+        const current = offsets[draggingDay] || {};
+        offsets[draggingDay] = { ...current, dx: Math.round(dragStart.dx + dx), dy: Math.round(dragStart.dy + dy) };
         draw();
       } else if (pTextState.isDragging) {
         const dx = x - pTextState.dragStart.mouseX;
@@ -711,12 +907,21 @@
     });
 
     // ---- Save PNG (robust) ----
+    // ---- Save PNG (robust) ----
+    // 1. Trigger Modal
     document.getElementById('btnSave').addEventListener('click', () => {
+      selectedDay = null; // Clear selection to hide arrows
+      draw(); // ensure latest clean frame
+      document.getElementById('downloadModal').classList.add('active');
+    });
+
+    // 2. Real Download Action
+    function performDownload() {
       try {
-        draw(); // ensure latest frame
         const daysForLog = getCheckedDays();
         const filename = makeFileName(daysForLog);
         const downloadPayload = buildDownloadPayload(daysForLog, filename, { closedLabel, holidayFill, holidayText, gridStroke });
+
         if (cv.toBlob) {
           cv.toBlob((blob) => {
             if (!blob) { alert('PNG 생성 실패'); return; }
@@ -738,6 +943,26 @@
         console.error('PNG save error:', err);
         alert('PNG 저장 중 오류가 발생했습니다.\\n만약 로컬 파일로 직접 열었다면, 간단한 서버로 열어주세요:\\npython -m http.server');
       }
+    }
+
+    // Modal Interaction
+    const modal = document.getElementById('downloadModal');
+    const btnConfirm = document.getElementById('btnModalConfirm');
+    const btnCancel = document.getElementById('btnModalCancel');
+
+    function closeModal() {
+      modal.classList.remove('active');
+    }
+
+    btnConfirm.addEventListener('click', () => {
+      performDownload();
+      closeModal();
+      setTimeout(() => window.print(), 500); // Auto-print after download
+    });
+
+    // btnCancel removed
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
     });
 
     // auto-load background (same folder)
@@ -769,6 +994,27 @@
 
     document.getElementById('btnApply').addEventListener('click', draw);
     document.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('input', draw); el.addEventListener('change', draw); });
+
+    // Audio controls removed as per request
+    /*
+    // Mute Button Logic
+    const btnMute = document.getElementById('btnMute');
+    btnMute.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      btnMute.textContent = audio.muted ? '🔇' : '🔊';
+    });
+
+    // Volume Slider Logic
+    const volSlider = document.getElementById('volSlider');
+    audio.volume = 0.5; // Default volume
+    volSlider.addEventListener('input', (e) => {
+      audio.volume = e.target.value;
+      if(audio.volume > 0 && audio.muted) {
+          audio.muted = false;
+          btnMute.textContent = '🔊';
+      }
+    });
+    */
 
     function makeFileName(days) {
 
