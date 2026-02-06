@@ -40,11 +40,11 @@
       max-width: 1600px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 360px 1fr 380px;
+      grid-template-columns: 360px 1fr 500px;
       gap: 20px;
       align-items: start;
-      zoom: 0.85;
-      /* Fit to screen as requested */
+      zoom: 0.9;
+      /* 화면 배율 조정 Increased to 90% */
     }
 
     .panel {
@@ -78,7 +78,8 @@
       align-items: center;
       gap: 8px;
       margin: 6px 0;
-      font-weight: 700
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     input[type="text"],
