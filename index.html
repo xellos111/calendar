@@ -917,11 +917,19 @@
     });
 
     // 2. Real Download Action
+    // 2. Real Download Action
     function performDownload() {
       try {
-        const daysForLog = getCheckedDays();
-        const filename = makeFileName(daysForLog);
-        const downloadPayload = buildDownloadPayload(daysForLog, filename, { closedLabel, holidayFill, holidayText, gridStroke });
+        // Resolve Priority: Open > Closed
+        // If a day is checked as both, it is treated as Open (not a holiday).
+        // So we filter out days that are in the 'open' list from the 'closed' list.
+        const allClosed = Array.from(document.querySelectorAll('.day:checked')).map(el => +el.value);
+        const allOpen = Array.from(document.querySelectorAll('.day-open:checked')).map(el => +el.value);
+        const effectiveHolidays = allClosed.filter(d => !allOpen.includes(d)).sort((a, b) => a - b);
+
+        const filename = makeFileName(effectiveHolidays);
+        // build payload with ONLY the effective holidays
+        const downloadPayload = buildDownloadPayload(effectiveHolidays, filename, { closedLabel, holidayFill, holidayText, gridStroke });
 
         if (cv.toBlob) {
           cv.toBlob((blob) => {
