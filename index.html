@@ -925,7 +925,12 @@
         // So we filter out days that are in the 'open' list from the 'closed' list.
         const allClosed = Array.from(document.querySelectorAll('.day:checked')).map(el => +el.value);
         const allOpen = Array.from(document.querySelectorAll('.day-open:checked')).map(el => +el.value);
-        const effectiveHolidays = allClosed.filter(d => !allOpen.includes(d)).sort((a, b) => a - b);
+        let effectiveHolidays = allClosed.filter(d => !allOpen.includes(d)).sort((a, b) => a - b);
+
+        // If empty (no holidays or all overridden), use explicit label
+        if (effectiveHolidays.length === 0) {
+          effectiveHolidays = ['휴무일없음'];
+        }
 
         const filename = makeFileName(effectiveHolidays);
         // build payload with ONLY the effective holidays
