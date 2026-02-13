@@ -128,7 +128,49 @@
       padding: 8px;
       display: flex;
       align-items: center;
-      justify-content: center
+      justify-content: center;
+      position: relative;
+      /* Checking context for tooltip */
+    }
+
+    .move-tooltip {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background: #fed73d;
+      color: #0d336c;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      pointer-events: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 100;
+      white-space: nowrap;
+      animation: tooltipPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .move-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #fed73d;
+    }
+
+    @keyframes tooltipPop {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -80%) scale(0.8);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -110%) scale(1);
+      }
     }
 
     .grid-3 {
@@ -1086,8 +1128,53 @@
       });
     }
 
+    // Tooltip Logic
+    function showMoveTooltip(day) {
+      const p = posMap[day];
+      if (!p) return;
+
+      const { calX, calY, cellW, cellH, headerH } = CFG;
+      const off = offsets[day] || { dx: 0, dy: 0 };
+
+      // Calculate center of the cell in canvas coordinates
+      const cx = calX + p.col * cellW + off.dx + (off.w || cellW) / 2;
+      const cy = calY + headerH + p.row * cellH + off.dy; // Top of the cell might be better? Let's aim for top center.
+
+      // Convert canvas coordinates to DOM coordinates relative to .thumb
+      const rect = cv.getBoundingClientRect();
+      const scaleX = rect.width / cv.width;
+      const scaleY = rect.height / cv.height;
+
+      const domX = cx * scaleX;
+      // Position slightly above the cell top (dy is relative to cell top?)
+      // cell is drawn at y. Let's aim clearly above.
+      const domY = (calY + headerH + p.row * cellH + off.dy) * scaleY + 40;
+
+      // Create Tooltip
+      const el = document.createElement('div');
+      el.className = 'move-tooltip';
+      el.textContent = '드래그나 화살표로 이동';
+      el.style.left = domX + 'px';
+      el.style.top = domY + 'px';
+
+      document.querySelector('.thumb').appendChild(el);
+
+      // Remove after 3s
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'translate(-50%, -130%)'; // float up
+        setTimeout(() => el.remove(), 300);
+      }, 3000);
+    }
+
     // Attach check to all checkboxes
     document.querySelectorAll('.day, .day-open').forEach(el => {
+      el.addEventListener('change', (e) => {
+        checkAndShowGuide();
+        if (e.target.checked) {
+          showMoveTooltip(+e.target.value);
+        }
+      });
     });
 
     const btnShowGuide = document.getElementById('btnShowGuide');
