@@ -342,6 +342,14 @@
           <label>2/18<label><input id="lab18" type="text" placeholder="설날 연휴" value="설날 연휴"></label></label>
         </div>
       </fieldset>
+      </fieldset>
+
+      <div style="margin-top:10px; text-align:right;">
+        <button id="btnShowGuide"
+          style="background:none; border:none; color:#cdd9ff; font-size:13px; cursor:pointer; text-decoration:underline; display:flex; align-items:center; justify-content:flex-end; gap:4px; margin-left:auto;">
+          <span>❓</span> 사용방법 다시보기
+        </button>
+      </div>
     </section>
 
     <!-- COLUMN 2: Preview -->
@@ -1080,8 +1088,14 @@
 
     // Attach check to all checkboxes
     document.querySelectorAll('.day, .day-open').forEach(el => {
-      el.addEventListener('change', checkAndShowGuide);
     });
+
+    const btnShowGuide = document.getElementById('btnShowGuide');
+    if (btnShowGuide) {
+      btnShowGuide.addEventListener('click', () => {
+        guideModal.classList.add('active');
+      });
+    }
 
     draw();
   </script>
