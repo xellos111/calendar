@@ -294,27 +294,101 @@
     }
 
     @media print {
-      body * {
-        visibility: hidden;
+      @page {
+        size: A4;
+        margin: 0;
       }
 
-      #cv,
-      #cv * {
-        visibility: visible;
-      }
-
-      #cv {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
-        height: auto !important;
+      html,
+      body {
+        width: 210mm;
+        height: 297mm;
         margin: 0;
         padding: 0;
+        background: #fff;
+        overflow: hidden;
+        /* Force single page */
       }
 
-      .modal-overlay {
+      /* Hide standard non-print elements */
+      .modal-overlay,
+      .move-tooltip,
+      .guide-modal {
         display: none !important;
+      }
+
+      /* Hide direct body children except .wrap */
+      body>*:not(.wrap) {
+        display: none !important;
+      }
+
+      /* Reset Wrap */
+      .wrap {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        zoom: 1 !important;
+        display: block !important;
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        background: white !important;
+      }
+
+      /* Hide unrelated panels (Column 1 and 3) */
+      .wrap>section:not(:nth-child(2)) {
+        display: none !important;
+      }
+
+      /* Configure Preview Column (Column 2) */
+      .wrap>section:nth-child(2) {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        background: white !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Hide Header and P inside Preview Column */
+      .wrap>section:nth-child(2)>h1,
+      .wrap>section:nth-child(2)>p {
+        display: none !important;
+      }
+
+      /* Configure Thumb */
+      .thumb {
+        position: static !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Configure Canvas */
+      #cv {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 210mm;
+        max-height: 297mm;
+        object-fit: contain;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        visibility: visible !important;
       }
     }
 
